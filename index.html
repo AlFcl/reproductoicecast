@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Reproductor Icecast</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f5f5f5;
+
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    
+    #reproductor-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    #logo {
+      width: 200px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    
+    #reproductor {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 250px;
+      height: 250px;
+      background-image: url("https://radiofiestachile.com/wp-content/uploads/2023/06/syspa-radio-1.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    #playBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      color: #fff;
+      cursor: pointer;
+      padding: 10px;
+    }
+    
+    #playBtn:hover {
+      color: #ff0000;
+      padding-bottom: 3px;
+    }
+    
+    #progressBar {
+      width: 80%;
+      height: 4px;
+      background-color: #ccc;
+      margin-top: 20px;
+      margin-bottom: 40px;
+
+    }
+    
+    #progressBar .progress {
+      height: 100%;
+      background-color: #ff0000;
+    }
+    
+    #volumeControl {
+      width: 80%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="reproductor-container">
+    <img id="logo" src="https://radiofiestachile.com/wp-content/uploads/2023/06/logo-removebg-3-preview-1.png" alt="Logo">
+    <div id="reproductor">
+      <i id="playBtn" class="fas fa-play"></i>
+      <div id="progressBar">
+        <div class="progress"></div>
+      </div>
+      <div id="volumeControl">
+        <input type="range" min="0" max="100" value="30" step="1">
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+  <script>
+    // Obtener referencias a los elementos del reproductor
+    var playBtn = document.getElementById('playBtn');
+    var progressBar = document.querySelector('#progressBar .progress');
+    var volumeControl = document.querySelector('#volumeControl input');
+
+    // Crear instancia de Howl con la URL del stream de Icecast
+    var icecastPlayer = new Howl({
+      src: ['http://5.9.65.9:8004/stream'],
+      html5: true,
+      format: ['mp3'],
+      autoplay: true,
+      volume: 0.3,
+      onplay: function() {
+        console.log('Reproduciendo');
+        playBtn.classList.remove('fa-play');
+        playBtn.classList.add('fa-pause');
+      },
+      onstop: function() {
+        console.log('Detenido');
+        playBtn.classList.remove('fa-pause');
+        playBtn.classList.add('fa-play');
+      },
+      onend: function() {
+        console.log('Fin de reproducción');
+        playBtn.classList.remove('fa-pause');
+        playBtn.classList.add('fa-play');
+      }
+    });
+
+    // Función para controlar la reproducción
+    function toggleReproducir() {
+      if (icecastPlayer.playing()) {
+        icecastPlayer.pause();
+      } else {
+        icecastPlayer.play();
+      }
+    }
+
+    // Evento del botón de reproducción
+    playBtn.addEventListener('click', toggleReproducir);
+
+    // Evento de la barra de volumen
+    volumeControl.addEventListener('input', function() {
+      var volume = parseFloat(this.value) / 100;
+      icecastPlayer.volume(volume);
+    });
+  </script>
+</body>
+</html>
